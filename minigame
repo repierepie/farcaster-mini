@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="fc:frame" content="vNext">
+    <meta property="fc:frame:image" content="https://placehold.co/1200x630/7c3aed/white?text=Farcaster+Clicker+Game">
+    <meta property="fc:frame:button:1" content="🎮 Jouer">
+    <meta property="fc:frame:button:2" content="📊 Scores">
+    <title>Farcaster Clicker Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #7c3aed;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .score-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 16px rgba(124, 58, 237, 0.3);
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 3em;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .click-button {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            cursor: pointer;
+            font-size: 4em;
+            transition: transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .click-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(245, 87, 108, 0.5);
+        }
+
+        .click-button:active {
+            transform: scale(0.95);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #111827;
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .upgrades {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .upgrades h2 {
+            color: #374151;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .upgrade-button {
+            width: 100%;
+            padding: 15px;
+            margin: 8px 0;
+            border: 2px solid #7c3aed;
+            background: white;
+            color: #7c3aed;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .upgrade-button:hover:not(:disabled) {
+            background: #7c3aed;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+
+        .upgrade-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .upgrade-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            flex: 1;
+        }
+
+        .upgrade-cost {
+            font-size: 0.85em;
+            opacity: 0.8;
+        }
+
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 2em;
+            animation: float 1s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes float {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px);
+            }
+        }
+
+        .leaderboard {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .leaderboard h2 {
+            color: #374151;
+            margin-bottom: 15px;
+        }
+
+        .leaderboard-list {
+            text-align: left;
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+
+        .reset-button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .reset-button:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎮 Farcaster Clicker</h1>
+        <p class="subtitle">Clique pour gagner des points !</p>
+
+        <div class="score-display">
+            <div class="score-label">Score Total</div>
+            <div class="score-value" id="score">0</div>
+        </div>
+
+        <button class="click-button" id="clickBtn">🚀</button>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Clics</div>
+                <div class="stat-value" id="clicks">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Par Clic</div>
+                <div class="stat-value" id="perClick">1</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Auto/sec</div>
+                <div class="stat-value" id="autoPerSec">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Niveau</div>
+                <div class="stat-value" id="level">1</div>
+            </div>
+        </div>
+
+        <div class="upgrades">
+            <h2>⚡ Améliorations</h2>
+            <button class="upgrade-button" id="upgrade1">
+                <div class="upgrade-info">
+                    <span>🖱️ Double Clic</span>
+                    <span class="upgrade-cost">Coût: <span id="cost1">10</span> pts</span>
+                </div>
+                <span id="count1">0</span>
+            </button>
+            <button class="upgrade-button" id="upgrade2">
+                <div class="upgrade-info">
+                    <span>🤖 Auto-Clicker</span>
+                    <span class="upgrade-cost">Coût: <span id="cost2">50</span> pts</span>
+                </div>
+                <span id="count2">0</span>
+            </button>
+            <button class="upgrade-button" id="upgrade3">
+                <div class="upgrade-info">
+                    <span>🚀 Mega Boost</span>
+                    <span class="upgrade-cost">Coût: <span id="cost3">200</span> pts</span>
+                </div>
+                <span id="count3">0</span>
+            </button>
+        </div>
+
+        <div class="leaderboard">
+            <h2>🏆 Top Scores</h2>
+            <div class="leaderboard-list" id="leaderboard">
+                <div class="leaderboard-item">
+                    <span>Aucun score encore...</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="reset-button" id="resetBtn">🔄 Réinitialiser</button>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            score: 0,
+            clicks: 0,
+            clickPower: 1,
+            autoClickerRate: 0,
+            level: 1,
+            upgrades: {
+                doubleClick: { count: 0, baseCost: 10, power: 1 },
+                autoClicker: { count: 0, baseCost: 50, rate: 1 },
+                megaBoost: { count: 0, baseCost: 200, power: 5 }
+            }
+        };
+
+        // Load game state
+        const savedState = localStorage.getItem('farcasterClickerGame');
+        if (savedState) {
+            gameState = JSON.parse(savedState);
+        }
+
+        // Elements
+        const scoreEl = document.getElementById('score');
+        const clicksEl = document.getElementById('clicks');
+        const perClickEl = document.getElementById('perClick');
+        const autoPerSecEl = document.getElementById('autoPerSec');
+        const levelEl = document.getElementById('level');
+        const clickBtn = document.getElementById('clickBtn');
+
+        // Update display
+        function updateDisplay() {
+            scoreEl.textContent = Math.floor(gameState.score);
+            clicksEl.textContent = gameState.clicks;
+            perClickEl.textContent = gameState.clickPower;
+            autoPerSecEl.textContent = gameState.autoClickerRate;
+            gameState.level = Math.floor(gameState.score / 100) + 1;
+            levelEl.textContent = gameState.level;
+
+            // Update upgrade costs
+            document.getElementById('cost1').textContent = getUpgradeCost('doubleClick');
+            document.getElementById('cost2').textContent = getUpgradeCost('autoClicker');
+            document.getElementById('cost3').textContent = getUpgradeCost('megaBoost');
+
+            // Update upgrade counts
+            document.getElementById('count1').textContent = gameState.upgrades.doubleClick.count;
+            document.getElementById('count2').textContent = gameState.upgrades.autoClicker.count;
+            document.getElementById('count3').textContent = gameState.upgrades.megaBoost.count;
+
+            // Enable/disable upgrade buttons
+            document.getElementById('upgrade1').disabled = gameState.score < getUpgradeCost('doubleClick');
+            document.getElementById('upgrade2').disabled = gameState.score < getUpgradeCost('autoClicker');
+            document.getElementById('upgrade3').disabled = gameState.score < getUpgradeCost('megaBoost');
+
+            saveGame();
+        }
+
+        // Calculate upgrade cost
+        function getUpgradeCost(upgradeType) {
+            const upgrade = gameState.upgrades[upgradeType];
+            return Math.floor(upgrade.baseCost * Math.pow(1.5, upgrade.count));
+        }
+
+        // Click handler
+        clickBtn.addEventListener('click', (e) => {
+            gameState.score += gameState.clickPower;
+            gameState.clicks++;
+            
+            // Create particle effect
+            createParticle(e.clientX, e.clientY, `+${gameState.clickPower}`);
+            
+            updateDisplay();
+        });
+
+        // Create floating particle
+        function createParticle(x, y, text) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = text;
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            document.body.appendChild(particle);
+            
+            setTimeout(() => particle.remove(), 1000);
+        }
+
+        // Upgrade handlers
+        document.getElementById('upgrade1').addEventListener('click', () => {
+            const cost = getUpgradeCost('doubleClick');
+            if (gameState.score >= cost) {
+                gameState.score -= cost;
+                gameState.upgrades.doubleClick.count++;
+                gameState.clickPower += gameState.upgrades.doubleClick.power;
+                updateDisplay();
+            }
+        });
+
+        document.getElementById('upgrade2').addEventListener('click', () => {
+            const cost = getUpgradeCost('autoClicker');
+            if (gameState.score >= cost) {
+                gameState.score -= cost;
+                gameState.upgrades.autoClicker.count++;
+                gameState.autoClickerRate += gameState.upgrades.autoClicker.rate;
+                updateDisplay();
+            }
+        });
+
+        document.getElementById('upgrade3').addEventListener('click', () => {
+            const cost = getUpgradeCost('megaBoost');
+            if (gameState.score >= cost) {
+                gameState.score -= cost;
+                gameState.upgrades.megaBoost.count++;
+                gameState.clickPower += gameState.upgrades.megaBoost.power;
+                updateDisplay();
+            }
+        });
+
+        // Auto-clicker loop
+        setInterval(() => {
+            if (gameState.autoClickerRate > 0) {
+                gameState.score += gameState.autoClickerRate / 10;
+                updateDisplay();
+            }
+        }, 100);
+
+        // Reset button
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser le jeu ?')) {
+                localStorage.removeItem('farcasterClickerGame');
+                location.reload();
+            }
+        });
+
+        // Save game
+        function saveGame() {
+            localStorage.setItem('farcasterClickerGame', JSON.stringify(gameState));
+        }
+
+        // Initialize
+        updateDisplay();
+    </script>
+</body>
+</html>
